@@ -60,7 +60,7 @@ set_background("bg.jpg")
 # ==========================================
 with st.sidebar:
     st.header("📱 扫码手机参与")
-    st.write("欢迎来到同济大学测绘与地理信息学院展位！")
+    st.write("欢迎参加同济大学测绘与地理信息学院 “国安有我 青春护航”知识挑战赛！")
     try:
         # 读取同文件夹下的二维码图片
         st.image("qrcode.png", caption="打开微信扫一扫", use_container_width=True)
