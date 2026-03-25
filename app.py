@@ -81,7 +81,7 @@ with st.sidebar:
 def load_question_bank():
     questions = []
     try:
-        df = pd.read_csv("questions.xlsx", encoding="gbk")
+        df = pd.read_csv("questions.xlsx", encoding="utf-8")
         for index, row in df.iterrows():
             options = [str(row['选项A']), str(row['选项B']), str(row['选项C']), str(row['选项D'])]
             options = [opt for opt in options if opt != 'nan' and opt.strip() != '']
