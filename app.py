@@ -176,10 +176,10 @@ else:
                     st.session_state.final_score = int(score)
                     st.rerun()
 
-        else:
-            st.success("🎉 交卷成功！您的成绩已安全录入系统。")
-            st.metric(label="最终得分", value=f"{st.session_state.final_score} 分")
-            st.info("👉 请点击上方的【🏆 英雄榜】查看您目前的排名！")
+    else:
+        st.success("🎉 交卷成功！您的成绩已安全录入系统。")
+        st.metric(label="最终得分", value=f"{st.session_state.final_score} 分")
+        st.info("👉 请点击上方的【🏆 英雄榜】查看您目前的排名！")
 
     with tab2:
         st.header("🏆 荣誉排行榜")
