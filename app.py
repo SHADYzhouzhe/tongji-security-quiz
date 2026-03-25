@@ -138,43 +138,43 @@ else:
                 submitted = st.form_submit_button("✅ 提交答卷", type="primary", use_container_width=True)
 
     if submitted:
-                    if not user_name.strip():
-                        st.error("⚠️ 必须填写姓名才能交卷哦！")
-                    elif None in user_answers:
-                        st.warning("⚠️ 还有题目未作答，请检查一遍！")
+                if not user_name.strip():
+                    st.error("⚠️ 必须填写姓名才能交卷哦！")
+                elif None in user_answers:
+                    st.warning("⚠️ 还有题目未作答，请检查一遍！")
+                else:
+                    # ===== 查重逻辑开始 =====
+                    if os.path.exists("results.csv"):
+                        df_existing = pd.read_csv("results.csv", encoding="utf-8-sig")
+                        # 检查当前输入的姓名是否已经在表格的“姓名”列中
+                        if user_name in df_existing["姓名"].values:
+                            st.error(f"⚠️ 提示：系统记录显示【{user_name}】已经参与过本次答题，请勿重复提交！将机会留给其他同学吧~")
+                            st.stop() # 核心：直接停止运行后面的代码
+                    # ===== 查重逻辑结束 =====
+                    
+                    # 计分
+                    score = 0
+                    points_per_q = 100 / len(st.session_state.selected_questions) 
+                    for i, q in enumerate(st.session_state.selected_questions):
+                        if user_answers[i] == q["answer"]:
+                            score += points_per_q
+                    
+                    # 保存成绩到 CSV
+                    record = {
+                        "姓名": user_name,
+                        "得分": int(score),
+                        "交卷时间": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                    df_new = pd.DataFrame([record])
+                    
+                    if not os.path.exists("results.csv"):
+                        df_new.to_csv("results.csv", index=False, encoding="utf-8-sig")
                     else:
-                        # ===== 新增：查重逻辑开始 =====
-                        if os.path.exists("results.csv"):
-                            df_existing = pd.read_csv("results.csv", encoding="utf-8-sig")
-                            # 检查当前输入的姓名是否已经在表格的“姓名”列中
-                            if user_name in df_existing["姓名"].values:
-                                st.error(f"⚠️ 提示：系统记录显示【{user_name}】已经参与过本次答题，请勿重复提交！将机会留给其他同学吧~")
-                                st.stop() # 核心：直接停止运行后面的计分和保存代码
-                        # ===== 新增：查重逻辑结束 =====
-                        
-                        # 计分
-                        score = 0
-                        points_per_q = 100 / len(st.session_state.selected_questions) 
-                        for i, q in enumerate(st.session_state.selected_questions):
-                            if user_answers[i] == q["answer"]:
-                                score += points_per_q
-                        
-                        # 保存成绩到 CSV
-                        record = {
-                            "姓名": user_name,
-                            "得分": int(score),
-                            "交卷时间": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        }
-                        df_new = pd.DataFrame([record])
-                        
-                        if not os.path.exists("results.csv"):
-                            df_new.to_csv("results.csv", index=False, encoding="utf-8-sig")
-                        else:
-                            df_new.to_csv("results.csv", mode='a', header=False, index=False, encoding="utf-8-sig")
-                        
-                        st.session_state.has_submitted = True
-                        st.session_state.final_score = int(score)
-                        st.rerun()
+                        df_new.to_csv("results.csv", mode='a', header=False, index=False, encoding="utf-8-sig")
+                    
+                    st.session_state.has_submitted = True
+                    st.session_state.final_score = int(score)
+                    st.rerun()
 
         else:
             st.success("🎉 交卷成功！您的成绩已安全录入系统。")
