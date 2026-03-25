@@ -177,9 +177,10 @@ else:
                     st.rerun()
 
     else:
-        st.success("🎉 交卷成功！您的成绩已安全录入系统。")
-        st.metric(label="最终得分", value=f"{st.session_state.final_score} 分")
-        st.info("👉 请点击上方的【🏆 英雄榜】查看您目前的排名！")
+            st.success("🎉 交卷成功！您的成绩已安全录入系统。")
+            # 使用 .get() 方法，如果找不到分数，就默认显示 0，彻底杜绝报错崩溃
+            st.metric(label="最终得分", value=f"{st.session_state.get('final_score', 0)} 分")
+            st.info("👉 请点击上方的【🏆 英雄榜】查看您目前的排名！")
 
     with tab2:
         st.header("🏆 荣誉排行榜")
