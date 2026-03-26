@@ -64,7 +64,7 @@ with st.sidebar:
     st.write("🌟 **活动规则：**")
     st.write("1. 从 120 题中随机抽取 20 题")
     st.write("2. 满分 100 分，按分数和速度排名")
-    st.write("3. 一等奖 1 名，二等奖 3 名，三等奖 5 名")
+    st.write("3. 一等奖 1 名，二等奖 2 名，三等奖 3 名")
 
 # ==========================================
 # 3. 读取 Excel 题库
@@ -188,9 +188,9 @@ else:
             for index in range(len(df_sorted)):
                 if index == 0:
                     prizes.append("🥇 一等奖")
-                elif 1 <= index <= 3:
+                elif 1 <= index <= 2:
                     prizes.append("🥈 二等奖")
-                elif 4 <= index <= 8:
+                elif 3 <= index <= 5:
                     prizes.append("🥉 三等奖")
                 else:
                     prizes.append("🎖️ 参与奖")
