@@ -64,7 +64,7 @@ with st.sidebar:
     st.write("🌟 **活动规则：**")
     st.write("1. 从 120 题中随机抽取 20 题")
     st.write("2. 满分 100 分，按分数和速度排名")
-    st.write("3. 一等奖 1 名，二等奖 2 名，三等奖 3 名")
+    st.write("3. 🎁 **奖项设置**：全对一等奖 (2名)，错一题二等奖 (3名)，其余三等奖 (19名)。名额发完自动向后顺延！")
 
 # ==========================================
 # 3. 读取 Excel 题库
@@ -174,26 +174,50 @@ else:
         else:
             st.success("🎉 交卷成功！您的成绩已安全录入系统。")
             st.metric(label="最终得分", value=f"{st.session_state.get('final_score', 0)} 分")
-            st.info("👉 请点击上方的【🏆 英雄榜】查看您目前的排名！")
+            st.info("👉 请点击上方的【🏆 英雄榜】查看您目前的排名和奖项！")
 
     with tab2:
         st.header("🏆 荣誉排行榜")
-        st.write("系统会自动根据 **分数优先、时间优先** 的原则进行实时排名。")
+        st.write("系统会自动根据 **分数优先、时间优先** 的原则进行实时排名，并按奖品余量自动顺延奖项。")
         
         if os.path.exists("results.csv"):
             df_results = pd.read_csv("results.csv", encoding="utf-8-sig")
             df_sorted = df_results.sort_values(by=["得分", "交卷时间"], ascending=[False, True]).reset_index(drop=True)
             
             prizes = []
-            for index in range(len(df_sorted)):
-                if index == 0:
-                    prizes.append("🥇 一等奖")
-                elif 1 <= index <= 2:
-                    prizes.append("🥈 二等奖")
-                elif 3 <= index <= 5:
-                    prizes.append("🥉 三等奖")
+            
+            # 初始化各奖项名额
+            quota_1 = 2   # 一等奖名额
+            quota_2 = 3   # 二等奖名额
+            quota_3 = 19  # 三等奖名额
+            
+            for index, row in df_sorted.iterrows():
+                score = row["得分"]
+                
+                # 1. 确定选手成绩对应的“理论应得奖项”级别
+                # (满分100，20题每题5分，错一题即得95分)
+                if score == 100:
+                    intended_level = 1
+                elif score == 95:
+                    intended_level = 2
                 else:
-                    prizes.append("🎖️ 参与奖")
+                    intended_level = 3
+                    
+                # 2. 根据名额和顺延规则实际分配奖项
+                if intended_level == 1 and quota_1 > 0:
+                    prizes.append("🥇 一等奖")
+                    quota_1 -= 1
+                elif intended_level <= 2 and quota_2 > 0:
+                    # 如果是一等奖但名额不够，或者本身就是二等奖，且二等奖有名额
+                    prizes.append("🥈 二等奖")
+                    quota_2 -= 1
+                elif intended_level <= 3 and quota_3 > 0:
+                    # 如果前两个奖项名额都不够，或者本身就是三等奖，且三等奖有名额
+                    prizes.append("🥉 三等奖")
+                    quota_3 -= 1
+                else:
+                    # 所有对应的奖池名额都耗尽了
+                    prizes.append("🎖️ 参与奖 (名额已满)")
                     
             df_sorted["获得奖项"] = prizes
             st.dataframe(df_sorted, use_container_width=True, hide_index=True)
